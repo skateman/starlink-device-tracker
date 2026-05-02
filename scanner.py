@@ -13,12 +13,16 @@ import paho.mqtt.client as mqtt
 import yaml
 from yagrc.reflector import GrpcReflectionClient
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 log = logging.getLogger("starlink-tracker")
+
+
+def setup_logging(level_name: str = "INFO"):
+    level = getattr(logging, level_name.upper(), logging.INFO)
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
 MQTT_DISCOVERY_PREFIX = "homeassistant"
 MQTT_STATE_PREFIX = "starlink-tracker"
@@ -116,7 +120,6 @@ class DeviceTracker:
 
         self._misses_for_not_home = config.get("scanner", {}).get("misses_for_not_home", 3)
         self._interval = config.get("scanner", {}).get("interval", 30)
-        self._log_all = config.get("scanner", {}).get("log_all_clients", False)
         self._online = False
 
     def _on_mqtt_connect(self, client, userdata, flags, rc, properties=None):
@@ -175,10 +178,9 @@ class DeviceTracker:
         if not self._online:
             self._publish_availability("online")
 
-        if self._log_all:
-            # role 1=CLIENT, 2=REPEATER, 3=CONTROLLER
-            client_names = [c["name"] or f"<unnamed:{c['mac']}>" for c in clients if c["role"] == 1]
-            log.info("Clients on network: %s", ", ".join(client_names) if client_names else "(none)")
+        # role 1=CLIENT, 2=REPEATER, 3=CONTROLLER
+        client_names = [c["name"] or f"<unnamed:{c['mac']}>" for c in clients if c["role"] == 1]
+        log.debug("Clients on network: %s", ", ".join(client_names) if client_names else "(none)")
 
         # Determine which tracked devices are present
         seen_names = {c["name"] for c in clients}
@@ -215,6 +217,7 @@ class DeviceTracker:
 def main():
     config_path = sys.argv[1] if len(sys.argv) > 1 else "/config/config.yaml"
     config = load_config(config_path)
+    setup_logging(config.get("log_level", "INFO"))
 
     tracker = DeviceTracker(config)
 

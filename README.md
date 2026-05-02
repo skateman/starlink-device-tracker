@@ -36,12 +36,12 @@ Tracks WiFi devices connected to a Starlink router and publishes their presence 
 | `mqtt.username` | MQTT username (optional) |
 | `mqtt.password` | MQTT password (optional) |
 | `starlink.router_address` | Starlink router gRPC endpoint (default: `192.168.1.1:9000`) |
+| `log_level` | Log verbosity: `debug`, `info`, `warning`, `error` (default: `info`) |
 | `scanner.interval` | Scan interval in seconds (default: 30) |
 | `scanner.misses_for_not_home` | Consecutive missed scans before marking `not_home` (default: 30) |
-| `scanner.log_all_clients` | Log all connected clients each scan (default: true) |
 | `devices.<id>.name` | Friendly name shown in HA |
 | `devices.<id>.starlink_name` | Device name as reported by Starlink router |
 
 ## Adding devices
 
-Set `log_all_clients: true` in the config — the scanner logs all connected client names each cycle. Use those names in `starlink_name` to track new devices.
+Set `log_level: debug` in the config — the scanner logs all connected client names each cycle at debug level. Use those names in `starlink_name` to track new devices.
