@@ -131,12 +131,12 @@ class DeviceTracker:
             for device_id, state in self._states.items():
                 self._publish_state(device_id, state)
         else:
-            log.error("MQTT connection failed with code %d", rc)
+            log.error("MQTT connection failed with code %s", rc)
 
     def _on_mqtt_disconnect(self, client, userdata, flags, rc, properties=None):
         self._online = False
         if rc != 0:
-            log.warning("Unexpected MQTT disconnect (rc=%d), will reconnect", rc)
+            log.warning("Unexpected MQTT disconnect (rc=%s), will reconnect", rc)
 
     def _publish_discovery(self):
         for device_id, device_cfg in self.devices.items():
